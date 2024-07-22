@@ -73,10 +73,8 @@ struct ScrollOffsetFeedView: View {
                 let sectionHeights = calculateSectionsHeights(sections: sections)
                 let newFeedPosition = calculateFeedtPosition(scrollPositionY: -1 * newValue.y,
                                                              sectionHeights: sectionHeights)
-                // TODO: check if oldValue is bigger than newValue and if the potential index is not correct, force to scroll to the first item
                 if newFeedPosition.sectionGlobalIndex < lastSeenSectionIndex
                     && newValue.y > oldValue.y {
-                    // TODO: Force scroll to needed position
                     print("Force to scroll back to the new section: \(lastSeenSectionIndex)")
                     let lastSeenSectionId = sections[lastSeenSectionIndex].id
                     proxy.scrollTo(lastSeenSectionId, anchor: .top)
@@ -108,7 +106,13 @@ struct ScrollOffsetFeedView: View {
     @ViewBuilder func makeSectionsCounter() -> some View {
         ZStack {
             if let feedPosition = feedPosition {
-                Text("Sections completed \(feedPosition.sectionGlobalIndex), item \(feedPosition.itemRelativeIndex + 1) / \(sections[feedPosition.sectionGlobalIndex].items.count)")
+                if let lastCompletedItemIndex = lastCompletedItemIndex {
+                    Text("Sections completed \(feedPosition.sectionGlobalIndex), item \(lastCompletedItemIndex + 1) / \(sections[feedPosition.sectionGlobalIndex].items.count)")
+                }
+                else {
+                    Text("Sections completed \(feedPosition.sectionGlobalIndex), item \(1) / \(sections[feedPosition.sectionGlobalIndex].items.count)")
+                }
+
             }
         }
         .padding()
@@ -147,6 +151,7 @@ struct ScrollOffsetFeedView: View {
         if index > lastSeenSectionIndex {
             lastSeenSectionIndex = index
         }
+        lastCompletedItemIndex = nil
     }
     
     private func customSectionOnDisappear(index: Int) {
@@ -155,6 +160,16 @@ struct ScrollOffsetFeedView: View {
     
     private func customItemOnAppear(sectionIndex: Int, itemIndex: Int) {
         print("Custom Item Appear: section \(sectionIndex) item \(itemIndex)")
+        if lastCompletedItemIndex == nil {
+            if itemIndex == 0 {
+                lastCompletedItemIndex = 0
+            }
+        }
+        else {
+            if itemIndex > lastCompletedItemIndex! {
+                lastCompletedItemIndex = itemIndex
+            }
+        }
     }
     
     private func customItemOnDisappear(sectionIndex: Int, itemIndex: Int) {
