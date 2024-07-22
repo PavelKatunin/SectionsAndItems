@@ -3,9 +3,15 @@ import SwiftUI
 
 struct SectionView: View {
     
-    @State var color: Color
-    @State var items: [String]
-    var sectionId: String
+    @State private var color: Color
+    @State private var items: [String]
+    private var sectionId: String
+    
+    init(color: Color, items: [String], sectionId: String) {
+        self.color = color
+        self.items = items
+        self.sectionId = sectionId
+    }
     
     var body: some View {
         LazyVStack(spacing: 0) {
@@ -15,10 +21,10 @@ struct SectionView: View {
             }
         }
         .onAppear() {
-            print("SiwftUI event: Section \(sectionId) appeared")
+            // print("SiwftUI event: Section \(sectionId) appeared")
         }
         .onDisappear() {
-            print("SiwftUI event: Section \(sectionId) disappeared")
+            // print("SiwftUI event: Section \(sectionId) disappeared")
         }
         .background(color)
     }
